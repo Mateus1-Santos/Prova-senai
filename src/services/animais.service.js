@@ -20,13 +20,13 @@ const listarTodosAnimais = async () => {
   return animais;
 };
 
-const buscarAnimaisPorId = async (id) => {
+const buscarAnimalPorId = async (id) => {
   const animal = animais.find((item) => item.id === Number(id));
   return animal || null;
 };
 
 // Criar um novo usuario
-const criarUsuario = async ({ nome, raça }) => {
+const criarAnimal = async ({ nome, raça }) => {
   if (!nome || !raça) {
     throw new Error('Nome e raça são obrigatórios.');
   }

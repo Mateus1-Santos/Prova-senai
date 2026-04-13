@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const livrosRoutes = require('./tutor.routes');
-const usuariosRoutes = require('./animais.routes');
+const tutorRoutes = require('./tutor.routes');
+const animaisRoutes = require('./animais.routes');
 const autenticar = require('../middlewares/auth.middleware')
 const contentType = require('../middlewares/contentType.middleware')
 

@@ -15,7 +15,7 @@ const buscarAnimalPorId = async (req, res) => {
     const animal = await animalService.buscarAnimalPorId(id);
 
     if (!animal) {
-      return res.status(404).json({ erro: `Usuário ${id} não encontrado.` });
+      return res.status(404).json({ erro: `Animal ${id} não encontrado.` });
     }
 
     res.status(200).json({ animal });
@@ -26,8 +26,8 @@ const buscarAnimalPorId = async (req, res) => {
 
 const criarAnimal = async (req, res) => {
   try {
-    const { nome, email } = req.body;
-    const novoAnimal = await animalService.criarAnimal({ nome, raça });
+    const { nome, raca } = req.body;
+    const novoAnimal = await animalService.criarAnimal({ nome, raca });
 
     res.status(201).json({
       mensagem: 'Animal cadastrado com sucesso!',
