@@ -31,7 +31,7 @@ const criarAnimal = async ({ nome, raça }) => {
     throw new Error('Nome e raça são obrigatórios.');
   }
   const novoAnimal = {
-    id: usuarios.length + 1,
+    id: animais.length + 1,
     nome,
     raça,
   };

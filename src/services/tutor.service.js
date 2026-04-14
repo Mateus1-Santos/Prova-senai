@@ -33,7 +33,7 @@ const buscarTutorPorId = async (id) => {
 };
 
 // Criar um novo livro no acervo
-const criarTutor = async ({ titulo, autor }) => {
+const criarTutor = async ({ nome, cidade }) => {
   // Regra de negócio: título e autor são obrigatórios
   if (!nome || !cidade) {
     throw new Error('Título e autor são obrigatórios.');
@@ -44,8 +44,8 @@ const criarTutor = async ({ titulo, autor }) => {
     cidade,
     disponivel: true,
   };
-  acervo.push(novoLivro);
-  return novoLivro;
+  acervo.push(novoTutor);
+  return novoTutor;
 };
 
 module.exports = { listarTodosTutores, buscarTutorPorId, criarTutor };
