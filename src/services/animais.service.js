@@ -38,5 +38,23 @@ const criarAnimal = async ({ nome, raça }) => {
   animais.push(novoAnimal);
   return novoAnimal;
 };
+const atualizarAnimal = async (id, { nome, raca }) => {
+  const index = animais.findIndex((item) => item.id === Number(id));
 
-module.exports = { listarTodosAnimais, buscarAnimalPorId, criarAnimal};
+  if (index === -1) {
+    return null;
+  }
+
+  if (!nome && !raca) {
+    throw new Error('Nome ou raça devem ser informados para atualizar.');
+  }
+
+  animais[index] = {
+    ...animais[index],
+    nome: nome ?? animais[index].nome,
+    raca: raca ?? animais[index].raca,
+  };
+
+  return animais[index];
+};
+module.exports = { listarTodosAnimais, buscarAnimalPorId, criarAnimal, atualizarAnimal};

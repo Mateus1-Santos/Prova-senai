@@ -1,4 +1,4 @@
-const CHAVE_ACESSO = 'clinica Mateus Motta';
+const CHAVE_ACESSO = 'clinicaMateusMotta';
 
 const autenticar = (req, res, next) => {
   const authHeader = req.headers['authorization'];

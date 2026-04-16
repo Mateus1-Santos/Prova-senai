@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const tutorRoutes = require('./tutor.routes');
 const animaisRoutes = require('./animais.routes');
+const consultasRoutes = require('./consultas.routes');
 const autenticar = require('../middlewares/auth.middleware')
 const contentType = require('../middlewares/contentType.middleware')
 
@@ -19,6 +20,7 @@ router.use(contentType)
 //rota de recursos 
 router.use('/tutor', tutorRoutes);
 router.use('/animais', animaisRoutes);
+router.use('/consultas', consultasRoutes);
 
 
 //rota 404

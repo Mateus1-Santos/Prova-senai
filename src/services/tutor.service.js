@@ -47,5 +47,23 @@ const criarTutor = async ({ nome, cidade }) => {
   acervo.push(novoTutor);
   return novoTutor;
 };
+const atualizarTutor = async (id, { nome, cidade }) => {
+  const index = tutores.findIndex((item) => item.id === Number(id));
 
-module.exports = { listarTodosTutores, buscarTutorPorId, criarTutor };
+  if (index === -1) {
+    return null;
+  }
+
+  if (!nome && !cidade) {
+    throw new Error('Nome ou e-mail devem ser informados para atualizar.');
+  }
+
+  tutores[index] = {
+    ...tutores[index],
+    nome: nome ?? tutores[index].nome,
+    cidade: cidade ?? tutores[index].cidade,
+  };
+
+  return tutores[index];
+};
+module.exports = { listarTodosTutores, buscarTutorPorId, criarTutor, atualizarTutor };

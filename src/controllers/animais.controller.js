@@ -37,5 +37,23 @@ const criarAnimal = async (req, res) => {
     res.status(400).json({ erro: erro.message });
   }
 };
+const atualizarAnimal = async (id, { titulo, autor }) => {
+  const index = animais.findIndex((item) => item.id === Number(id));
 
-module.exports = { listarAnimais, buscarAnimalPorId, criarAnimal };
+  if (index === -1) {
+    return null;
+  }
+
+  if (!titulo && !autor) {
+    throw new Error('Título ou autor devem ser informados para atualizar.');
+  }
+
+  animais[index] = {
+    ...animais[index],
+    titulo: titulo ?? animais[index].titulo,
+    autor: autor ?? animais[index].autor,
+  };
+
+  return animais[index];
+};
+module.exports = { listarAnimais, buscarAnimalPorId, criarAnimal, atualizarAnimal};
