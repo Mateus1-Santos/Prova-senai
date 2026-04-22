@@ -1,60 +1,68 @@
-const animais = [
-  {
-    id: 1,
-    nome: 'Anderson Dutra',
-    raça: 'aura mais ego',
-  },
-  {
-    id: 2,
-    nome: 'Daniel',
-    raça: 'X-tudo',
-  },
-  {
-    id: 3,
-    nome: 'Teddy',
-    raça: 'pitbull',
-  },
-];
+const pool = require('../database/connection');
 
 const listarTodosAnimais = async () => {
-  return animais;
+  const result = await pool.query('SELECT * FROM animais ORDER BY id ASC');
+  return result.rows;
 };
 
 const buscarAnimalPorId = async (id) => {
-  const animal = animais.find((item) => item.id === Number(id));
-  return animal || null;
+  const result = await pool.query('SELECT * FROM animais WHERE id = $1', [id]);
+  return result.rows[0] || null;
 };
 
-// Criar um novo usuario
-const criarAnimal = async ({ nome, raça }) => {
-  if (!nome || !raça) {
-    throw new Error('Nome e raça são obrigatórios.');
+const criarAnimal = async ({ nome, especie, raca, data_nascimento, tutor_id }) => {
+  if (!nome || !tutor_id) {
+    throw new Error('Nome e tutor_id são obrigatórios.');
   }
-  const novoAnimal = {
-    id: animais.length + 1,
-    nome,
-    raça,
-  };
-  animais.push(novoAnimal);
-  return novoAnimal;
+  const result = await pool.query(
+    'INSERT INTO animais (nome, especie, raca, data_nascimento, tutor_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    [nome, especie, raca, data_nascimento, tutor_id]
+  );
+  return result.rows[0];
 };
-const atualizarAnimal = async (id, { nome, raca }) => {
-  const index = animais.findIndex((item) => item.id === Number(id));
 
-  if (index === -1) {
+const atualizarAnimal = async (id, { nome, especie, raca, data_nascimento, tutor_id }) => {
+  const animalExistente = await buscarAnimalPorId(id);
+  if (!animalExistente) {
     return null;
   }
 
-  if (!nome && !raca) {
-    throw new Error('Nome ou raça devem ser informados para atualizar.');
-  }
+  const result = await pool.query(
+    'UPDATE animais SET nome = $1, especie = $2, raca = $3, data_nascimento = $4, tutor_id = $5 WHERE id = $6 RETURNING *',
+    [
+      nome ?? animalExistente.nome,
+      especie ?? animalExistente.especie,
+      raca ?? animalExistente.raca,
+      data_nascimento ?? animalExistente.data_nascimento,
+      tutor_id ?? animalExistente.tutor_id,
+      id
+    ]
+  );
 
-  animais[index] = {
-    ...animais[index],
-    nome: nome ?? animais[index].nome,
-    raca: raca ?? animais[index].raca,
-  };
-
-  return animais[index];
+  return result.rows[0];
 };
-module.exports = { listarTodosAnimais, buscarAnimalPorId, criarAnimal, atualizarAnimal};
+
+const deletarAnimal = async (id) => {
+  const result = await pool.query('DELETE FROM animais WHERE id = $1 RETURNING *', [id]);
+  return result.rows[0] || null;
+};
+
+const listarConsultasPorAnimal = async (animalId) => {
+  const query = `
+    SELECT c.*, a.nome as animal_nome 
+    FROM consultas c 
+    JOIN animais a ON c.animal_id = a.id 
+    WHERE a.id = $1
+  `;
+  const result = await pool.query(query, [animalId]);
+  return result.rows;
+};
+
+module.exports = { 
+  listarTodosAnimais, 
+  buscarAnimalPorId, 
+  criarAnimal, 
+  atualizarAnimal, 
+  deletarAnimal,
+  listarConsultasPorAnimal
+};

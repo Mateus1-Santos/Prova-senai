@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const tutoresController = require('../controllers/tutor.controller');
+const tutorController = require('../controllers/tutor.controller');
 
-router.get('/', tutoresController.listarTutores);
-router.get('/:id', tutoresController.buscarTutorPorId);
-router.post('/', tutoresController.criarTutor);
-router.put('/:id', tutoresController.atualizarTutor);
-
+router.get('/', tutorController.listarTutores);
+router.get('/:id', tutorController.buscarTutorPorId);
+router.post('/', tutorController.criarTutor);
+router.put('/:id', tutorController.atualizarTutor);
+router.delete('/:id', tutorController.deletarTutor);
 
 module.exports = router;

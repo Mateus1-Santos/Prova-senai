@@ -1,77 +1,61 @@
-const consultaService = require('../services/consultas.service');
+const consultasService = require('../services/consultas.service');
 
 const listarConsultas = async (req, res) => {
   try {
-    const consultas = await consultaService.listarTodasConsultas();
-    res.status(200).json({ total: consultas.length, consultas });
-  } catch (erro) {
-    res.status(500).json({ erro: 'Erro interno ao listar consultas.' });
+    const consultas = await consultasService.listarTodasConsultas();
+    res.json({ total: consultas.length, consultas });
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao listar consultas', mensagem: error.message });
   }
 };
 
 const buscarConsultaPorId = async (req, res) => {
   try {
     const { id } = req.params;
-    const consulta = await consultaService.buscarConsultaPorId(id);
-
+    const consulta = await consultasService.buscarConsultaPorId(id);
     if (!consulta) {
-      return res.status(404).json({ erro: `Consulta ${id} não encontrada.` });
+      return res.status(404).json({ erro: 'Consulta não encontrada' });
     }
-
-    res.status(200).json({ consulta });
-  } catch (erro) {
-    res.status(500).json({ erro: 'Erro interno ao buscar consulta.' });
+    res.json({ consulta });
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao buscar consulta', mensagem: error.message });
   }
 };
 
 const criarConsulta = async (req, res) => {
   try {
-    const { data, descricao, tutor_id, animal_id } = req.body;
-    const novaConsulta = await consultaService.criarConsulta({ data, descricao, tutor_id, animal_id });
-
-    res.status(201).json({
-      mensagem: 'Consulta cadastrada com sucesso!',
-      consulta: novaConsulta,
-    });
-  } catch (erro) {
-    res.status(400).json({ erro: erro.message });
+    const { animal_id, data_consulta, motivo, diagnostico, veterinario } = req.body;
+    const novaConsulta = await consultasService.criarConsulta({ animal_id, data_consulta, motivo, diagnostico, veterinario });
+    res.status(201).json({ mensagem: 'Consulta registrada com sucesso!', consulta: novaConsulta });
+  } catch (error) {
+    res.status(400).json({ erro: 'Erro ao registrar consulta', mensagem: error.message });
   }
 };
 
 const atualizarConsulta = async (req, res) => {
   try {
     const { id } = req.params;
-    const { data, descricao, tutor_id, animal_id } = req.body;
-    const consultaAtualizada = await consultaService.atualizarConsulta(id, { data, descricao, tutor_id, animal_id });
-
+    const { animal_id, data_consulta, motivo, diagnostico, veterinario } = req.body;
+    const consultaAtualizada = await consultasService.atualizarConsulta(id, { animal_id, data_consulta, motivo, diagnostico, veterinario });
     if (!consultaAtualizada) {
-      return res.status(404).json({ erro: `Consulta ${id} não encontrada.` });
+      return res.status(404).json({ erro: 'Consulta não encontrada' });
     }
-
-    res.status(200).json({
-      mensagem: 'Consulta atualizada com sucesso!',
-      consulta: consultaAtualizada,
-    });
-  } catch (erro) {
-    res.status(400).json({ erro: erro.message });
+    res.json({ mensagem: 'Consulta atualizada com sucesso!', consulta: consultaAtualizada });
+  } catch (error) {
+    res.status(400).json({ erro: 'Erro ao atualizar consulta', mensagem: error.message });
   }
 };
 
 const deletarConsulta = async (req, res) => {
   try {
     const { id } = req.params;
-    const consultaDeletada = await consultaService.deletarConsulta(id);
-
+    const consultaDeletada = await consultasService.deletarConsulta(id);
     if (!consultaDeletada) {
-      return res.status(404).json({ erro: `Consulta ${id} não encontrada.` });
+      return res.status(404).json({ erro: 'Consulta não encontrada' });
     }
-
-    res.status(200).json({
-      mensagem: 'Consulta deletada com sucesso!',
-      consulta: consultaDeletada,
-    });
-  } catch (erro) {
-    res.status(500).json({ erro: 'Erro interno ao deletar consulta.' });
+    res.json({ mensagem: 'Consulta removida com sucesso!', consulta: consultaDeletada });
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao remover consulta', mensagem: error.message });
   }
 };
 

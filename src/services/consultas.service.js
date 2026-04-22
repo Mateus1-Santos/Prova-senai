@@ -1,72 +1,50 @@
-const consultas = [
-  {
-    id: 1,
-    data: '2023-10-01',
-    descricao: 'Consulta de rotina',
-    tutor_id: 1,
-    animal_id: 1,
-  },
-  {
-    id: 2,
-    data: '2023-10-05',
-    descricao: 'Vacinação',
-    tutor_id: 2,
-    animal_id: 2,
-  },
-];
+const pool = require('../database/connection');
 
 const listarTodasConsultas = async () => {
-  return consultas;
+  const result = await pool.query('SELECT * FROM consultas ORDER BY data_consulta DESC');
+  return result.rows;
 };
 
 const buscarConsultaPorId = async (id) => {
-  const consulta = consultas.find((item) => item.id === Number(id));
-  return consulta || null;
+  const result = await pool.query('SELECT * FROM consultas WHERE id = $1', [id]);
+  return result.rows[0] || null;
 };
 
-const criarConsulta = async ({ data, descricao, tutor_id, animal_id }) => {
-  if (!data || !descricao || !tutor_id || !animal_id) {
-    throw new Error('Data, descrição, tutor_id e animal_id são obrigatórios.');
+const criarConsulta = async ({ animal_id, data_consulta, motivo, diagnostico, veterinario }) => {
+  if (!animal_id || !data_consulta) {
+    throw new Error('animal_id e data_consulta são obrigatórios.');
   }
-  const novaConsulta = {
-    id: consultas.length + 1,
-    data,
-    descricao,
-    tutor_id,
-    animal_id,
-  };
-  consultas.push(novaConsulta);
-  return novaConsulta;
+  const result = await pool.query(
+    'INSERT INTO consultas (animal_id, data_consulta, motivo, diagnostico, veterinario) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    [animal_id, data_consulta, motivo, diagnostico, veterinario]
+  );
+  return result.rows[0];
 };
 
-const atualizarConsulta = async (id, { data, descricao, tutor_id, animal_id }) => {
-  const index = consultas.findIndex((item) => item.id === Number(id));
-
-  if (index === -1) {
+const atualizarConsulta = async (id, { animal_id, data_consulta, motivo, diagnostico, veterinario }) => {
+  const consultaExistente = await buscarConsultaPorId(id);
+  if (!consultaExistente) {
     return null;
   }
 
-  if (!data && !descricao && !tutor_id && !animal_id) {
-    throw new Error('Pelo menos um campo deve ser informado para atualizar.');
-  }
+  const result = await pool.query(
+    'UPDATE consultas SET animal_id = $1, data_consulta = $2, motivo = $3, diagnostico = $4, veterinario = $5 WHERE id = $6 RETURNING *',
+    [
+      animal_id ?? consultaExistente.animal_id,
+      data_consulta ?? consultaExistente.data_consulta,
+      motivo ?? consultaExistente.motivo,
+      diagnostico ?? consultaExistente.diagnostico,
+      veterinario ?? consultaExistente.veterinario,
+      id
+    ]
+  );
 
-  if (data) consultas[index].data = data;
-  if (descricao) consultas[index].descricao = descricao;
-  if (tutor_id) consultas[index].tutor_id = tutor_id;
-  if (animal_id) consultas[index].animal_id = animal_id;
-
-  return consultas[index];
+  return result.rows[0];
 };
 
 const deletarConsulta = async (id) => {
-  const index = consultas.findIndex((item) => item.id === Number(id));
-
-  if (index === -1) {
-    return null;
-  }
-
-  const consultaDeletada = consultas.splice(index, 1);
-  return consultaDeletada[0];
+  const result = await pool.query('DELETE FROM consultas WHERE id = $1 RETURNING *', [id]);
+  return result.rows[0] || null;
 };
 
 module.exports = {
