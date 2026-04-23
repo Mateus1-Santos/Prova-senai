@@ -1,69 +1,54 @@
-const acervo = [
-  {
-    id: 1,
-    nome: 'Jorge',
-    cidade: 'Palhoça',
-    disponivel: true,
-  },
-  {
-    id: 2,
-    nome: 'Daniel',
-    cidade: 'São Jose',
-    disponivel: false,
-  },
-  {
-    id: 3,
-    nome: "Ricardo",
-    cidade: 'Floripa',
-    disponivel: true,
-  },
-];
+const pool = require('../database/connection');
 
-// Lista todos os livros do acervo
 const listarTodosTutores = async () => {
-  return acervo;
+  const result = await pool.query('SELECT * FROM tutores ORDER BY id ASC');
+  return result.rows;
 };
 
-// Busca um livro específico pelo ID
 const buscarTutorPorId = async (id) => {
-  const livro = acervo.find((item) => item.id === Number(id));
-  // Regra de negócio: se não existe, retorna null.
-  // O Controller decide o que fazer com o null.
-  return livro || null;
+  const result = await pool.query('SELECT * FROM tutores WHERE id = $1', [id]);
+  return result.rows[0] || null;
 };
 
-// Criar um novo livro no acervo
-const criarTutor = async ({ nome, cidade }) => {
-  // Regra de negócio: título e autor são obrigatórios
-  if (!nome || !cidade) {
-    throw new Error('Título e autor são obrigatórios.');
+const criarTutor = async ({ nome, telefone, email }) => {
+  if (!nome) {
+    throw new Error('Nome é obrigatório.');
   }
-  const novoTutor = {
-    id: acervo.length + 1,
-    nome,
-    cidade,
-    disponivel: true,
-  };
-  acervo.push(novoTutor);
-  return novoTutor;
+  const result = await pool.query(
+    'INSERT INTO tutores (nome, telefone, email) VALUES ($1, $2, $3) RETURNING *',
+    [nome, telefone, email]
+  );
+  return result.rows[0];
 };
-const atualizarTutor = async (id, { nome, cidade }) => {
-  const index = tutores.findIndex((item) => item.id === Number(id));
 
-  if (index === -1) {
+const atualizarTutor = async (id, { nome, telefone, email }) => {
+  const tutorExistente = await buscarTutorPorId(id);
+  if (!tutorExistente) {
     return null;
   }
 
-  if (!nome && !cidade) {
-    throw new Error('Nome ou e-mail devem ser informados para atualizar.');
-  }
+  const result = await pool.query(
+    'UPDATE tutores SET nome = $1, telefone = $2, email = $3 WHERE id = $4 RETURNING *',
+    [
+      nome ?? tutorExistente.nome,
+      telefone ?? tutorExistente.telefone,
+      email ?? tutorExistente.email,
+      id
+    ]
+  );
 
-  tutores[index] = {
-    ...tutores[index],
-    nome: nome ?? tutores[index].nome,
-    cidade: cidade ?? tutores[index].cidade,
-  };
-
-  return tutores[index];
+  return result.rows[0];
 };
-module.exports = { listarTodosTutores, buscarTutorPorId, criarTutor, atualizarTutor };
+
+const deletarTutor = async (id) => {
+  const result = await pool.query('DELETE FROM tutores WHERE id = $1 RETURNING *', [id]);
+  return result.rows[0] || null;
+};
+
+module.exports = { 
+  listarTodosTutores, 
+  buscarTutorPorId, 
+  criarTutor, 
+  atualizarTutor, 
+  deletarTutor 
+};

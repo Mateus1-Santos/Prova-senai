@@ -1,4 +1,4 @@
-const CHAVE_ACESSO = 'clinicaMateusMotta';
+const CHAVE_ACESSO = process.env.AUTH_KEY || 'clinicaMateusMotta';
 
 const autenticar = (req, res, next) => {
   const authHeader = req.headers['authorization'];
